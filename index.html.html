@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Snapixx – Discover & Save Ideas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --border: #ebebeb;
+    --text-primary: #111111;
+    --text-secondary: #767676;
+    --accent: #e60023;
+    --accent-dark: #c0001d;
+    --accent-soft: #ffeef0;
+    --pill-bg: #efefef;
+    --pill-hover: #e1e1e1;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-md: 0 6px 24px rgba(0,0,0,0.13);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,0.18);
+    --radius: 16px;
+    --radius-pill: 50px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 22px; height: 22px; fill: white; }
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .nav-link {
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .nav-link:hover { background: var(--pill-bg); }
+  .nav-link.active { background: var(--text-primary); color: white; }
+
+  .search-bar {
+    flex: 1;
+    position: relative;
+    max-width: 680px;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 11px 16px 11px 44px;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: var(--pill-bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .search-bar input:focus {
+    background: #e8e8e8;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .search-bar .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .btn-primary {
+    padding: 9px 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent-dark); transform: scale(1.03); }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: white; font-size: 0.9rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ── CATEGORY PILLS ── */
+  .category-row {
+    display: flex;
+    gap: 8px;
+    padding: 14px 20px;
+    overflow-x: auto;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .category-row::-webkit-scrollbar { display: none; }
+  .pill {
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    background: var(--pill-bg);
+    font-size: 0.88rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+  }
+  .pill:hover { background: var(--pill-hover); transform: scale(1.04); }
+  .pill.active { background: var(--text-primary); color: white; }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    padding: 24px 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* ── MASONRY GRID ── */
+  .masonry {
+    columns: 6 220px;
+    column-gap: 12px;
+  }
+
+  /* ── PIN CARD ── */
+  .pin {
+    break-inside: avoid;
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s cubic-bezier(.25,.8,.25,1), box-shadow 0.25s;
+    animation: fadeUp 0.5s both;
+  }
+  .pin:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+    z-index: 10;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pin img {
+    width: 100%;
+    display: block;
+    border-radius: var(--radius) var(--radius) 0 0;
+    object-fit: cover;
+  }
+  .pin.no-label img {
+    border-radius: var(--radius);
+  }
+
+  /* Hover overlay */
+  .pin-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.25s;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .pin:hover .pin-overlay { opacity: 1; background: rgba(0,0,0,0.12); }
+
+  .pin-overlay-top {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .pin-overlay-bottom {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .ov-btn {
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .ov-btn:hover { transform: scale(1.06); }
+  .ov-save { background: var(--accent); color: white; }
+  .ov-saved { background: #333; color: white; }
+  .ov-share {
+    background: rgba(255,255,255,0.92);
+    color: #333;
+    width: 32px; height: 32px;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+  .ov-more {
+    background: rgba(255,255,255,0.92);
+    color: #333;
+    width: 32px; height: 32px;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+  .ov-board {
+    background: rgba(255,255,255,0.92);
+    color: #333;
+    font-size: 0.78rem;
+    font-weight: 600;
+    gap: 5px;
+    display: flex; align-items: center;
+  }
+
+  /* Pin label */
+  .pin-label {
+    padding: 10px 12px 12px;
+  }
+  .pin-label h4 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pin-label span {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.35s cubic-bezier(.25,.8,.25,1);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── MODAL ── */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s;
+  }
+  .modal-bg.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px;
+    max-width: 860px;
+    width: 95%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s cubic-bezier(.25,.8,.25,1);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .modal-img {
+    width: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .modal-body {
+    padding: 32px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .modal-body h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .modal-body p {
+    font-size: 0.93rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .modal-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .modal-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .modal-meta-text { font-size: 0.85rem; }
+  .modal-meta-text strong { display: block; }
+  .modal-meta-text span { color: var(--text-secondary); }
+  .modal-actions { display: flex; gap: 10px; margin-top: auto; }
+  .btn-secondary {
+    padding: 10px 22px;
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--border);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: var(--pill-bg); }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: var(--pill-hover); }
+
+  /* ── CREATE PIN MODAL ── */
+  .create-modal {
+    max-width: 700px;
+    flex-direction: column;
+    padding: 32px;
+    gap: 20px;
+  }
+  .create-modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .create-modal .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--bg);
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .create-modal .upload-zone:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .create-modal .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; }
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.93rem;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color: var(--accent);
+  }
+  .create-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+  /* ── HERO BANNER ── */
+  .hero {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .hero img {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.6s ease;
+  }
+  .hero:hover img { transform: scale(1.03); }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.45) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 36px;
+    gap: 14px;
+  }
+  .hero-badges {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hero-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 50px;
+    padding: 7px 16px;
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .hero-cta {
+    padding: 13px 38px;
+    background: linear-gradient(135deg, #f7971e, #e6003a);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 28px rgba(230,0,35,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .hero-cta:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 12px 36px rgba(230,0,35,0.6);
+  }
+
+  /* responsive tweaks */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .modal { flex-direction: column; }
+    .modal-img { width: 100%; height: 200px; }
+    .masonry { columns: 2 160px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5h-2v-6H9.5v-2H11V7.5C11 6.12 12.12 5 13.5 5H15v2h-1c-.55 0-1 .45-1 1v.5h2l-.5 2H13v6z"/></svg>
+    </div>
+    <span class="logo-text">Snapixx</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link active" href="#">Home</a>
+    <a class="nav-link" href="#">Explore</a>
+    <a class="nav-link" href="#" onclick="openCreate()">+ Create</a>
+  </div>
+  <div class="search-bar">
+    <span class="search-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <input type="text" placeholder="Search Snapixx for ideas…" id="searchInput" oninput="filterPins()" />
+  </div>
+  <div class="nav-actions">
+    <button class="btn-primary" onclick="openCreate()">+ Create</button>
+    <div class="avatar">M</div>
+  </div>
+</nav>
+
+<!-- HERO BANNER -->
+<div class="hero" onclick="document.getElementById('categoryRow').scrollIntoView({behavior:'smooth'})">
+  <img src="/mnt/user-data/uploads/ChatGPT_Image_Mar_20__2026__10_48_45_PM.png" alt="Snapixx – Capture Your Moments" />
+  <div class="hero-overlay">
+    <div class="hero-badges">
+      <div class="hero-badge">⭐ High Quality Photos</div>
+      <div class="hero-badge">💡 Creative Inspiration</div>
+      <div class="hero-badge">⚙️ Easy to Use</div>
+    </div>
+    <button class="hero-cta" onclick="event.stopPropagation(); document.getElementById('categoryRow').scrollIntoView({behavior:'smooth'})">Explore Gallery</button>
+  </div>
+</div>
+
+<!-- CATEGORY PILLS -->
+<div class="category-row" id="categoryRow">
+  <button class="pill active" onclick="setCategory(this,'All')">All</button>
+  <button class="pill" onclick="setCategory(this,'Architecture')">Architecture</button>
+  <button class="pill" onclick="setCategory(this,'Food')">Food & Recipes</button>
+  <button class="pill" onclick="setCategory(this,'Travel')">Travel</button>
+  <button class="pill" onclick="setCategory(this,'Fashion')">Fashion</button>
+  <button class="pill" onclick="setCategory(this,'Nature')">Nature</button>
+  <button class="pill" onclick="setCategory(this,'Interior')">Interior Design</button>
+  <button class="pill" onclick="setCategory(this,'Art')">Art</button>
+  <button class="pill" onclick="setCategory(this,'Photography')">Photography</button>
+  <button class="pill" onclick="setCategory(this,'Fitness')">Fitness</button>
+  <button class="pill" onclick="setCategory(this,'DIY')">DIY & Crafts</button>
+  <button class="pill" onclick="setCategory(this,'Wedding')">Wedding</button>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="masonry" id="grid"></div>
+</main>
+
+<!-- PIN DETAIL MODAL -->
+<div class="modal-bg" id="pinModal" onclick="closePinModal(event)">
+  <button class="modal-close" onclick="document.getElementById('pinModal').classList.remove('open')">✕</button>
+  <div class="modal" id="pinModalInner">
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <div class="modal-body">
+      <h2 id="modalTitle"></h2>
+      <p id="modalDesc"></p>
+      <div class="modal-meta">
+        <div class="avatar" style="background:linear-gradient(135deg,#a1c4fd,#c2e9fb);color:#333;font-size:0.8rem;" id="modalAvatar">U</div>
+        <div class="modal-meta-text">
+          <strong id="modalUser"></strong>
+          <span id="modalBoard"></span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" id="modalSaveBtn" onclick="modalSave()">Save</button>
+        <button class="btn-secondary">Visit site</button>
+        <button class="btn-secondary">Share</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE PIN MODAL -->
+<div class="modal-bg" id="createModal" onclick="closeCreateModal(event)">
+  <div class="modal create-modal" id="createModalInner">
+    <h2>Create a Pin</h2>
+    <div class="upload-zone">
+      <div class="upload-icon">📎</div>
+      <p>Drag & drop or <strong>click to upload</strong></p>
+      <p style="font-size:0.8rem;margin-top:6px;">PNG, JPG, GIF up to 20MB</p>
+    </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" placeholder="Add a title…" />
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea rows="3" placeholder="Tell everyone what your Pin is about…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Board</label>
+      <select>
+        <option>Choose a board</option>
+        <option>My Favourites</option>
+        <option>Architecture Goals</option>
+        <option>Food Inspo</option>
+        <option>Travel Bucket List</option>
+      </select>
+    </div>
+    <div class="create-actions">
+      <button class="btn-secondary" onclick="document.getElementById('createModal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" onclick="saveNewPin()">Publish Pin</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const PINS = [
+  { id:1, img:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80", title:"Golden Hour Portrait", user:"Aiko M.", board:"Photography Inspo", desc:"A stunning golden hour portrait with warm bokeh and natural lighting.", category:"Photography", h:280 },
+  { id:2, img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80", title:"Minimalist Living Room", user:"Lars H.", board:"Interior Design", desc:"Clean lines, neutral palette, and just the right amount of texture.", category:"Interior", h:360 },
+  { id:3, img:"https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&q=80", title:"Avocado Toast Board", user:"Priya S.", board:"Food Goals", desc:"The ultimate weekend brunch spread with vibrant toppings.", category:"Food", h:300 },
+  { id:4, img:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80", title:"Swiss Alps Sunrise", user:"Marco R.", board:"Travel Dreams", desc:"First light over the misty Swiss Alps — pure magic.", category:"Travel", h:380 },
+  { id:5, img:"https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?w=400&q=80", title:"Street Style Fit", user:"Zara K.", board:"Fashion Mood", desc:"Effortless layering with a pop of color — autumn street style.", category:"Fashion", h:340 },
+  { id:6, img:"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80", title:"Forest Bathing", user:"Nora E.", board:"Nature Escape", desc:"Towering pines and soft morning light deep in an old-growth forest.", category:"Nature", h:420 },
+  { id:7, img:"https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&q=80", title:"Brutalist Facade", user:"Carlos M.", board:"Architecture Finds", desc:"The raw beauty of exposed concrete and geometric repetition.", category:"Architecture", h:300 },
+  { id:8, img:"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&q=80", title:"Abstract Pour Painting", user:"Yuki T.", board:"Art Experiments", desc:"Fluid acrylic pour creating gorgeous organic swirls.", category:"Art", h:260 },
+  { id:9, img:"https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80", title:"Açaí Power Bowl", user:"Lucia F.", board:"Healthy Eats", desc:"Packed with antioxidants and topped with granola and fresh berries.", category:"Food", h:290 },
+  { id:10, img:"https://images.unsplash.com/photo-1467226632440-65f0b4957563?w=400&q=80", title:"Santorini Blue Domes", user:"Elena V.", board:"Greece Trip", desc:"The iconic whitewashed cliffs of Oia at sunset.", category:"Travel", h:330 },
+  { id:11, img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80", title:"Leather & Linen", user:"Mia D.", board:"Fashion Mood", desc:"A thoughtfully curated capsule wardrobe in earthy tones.", category:"Fashion", h:380 },
+  { id:12, img:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=80", title:"Waterfall Hike", user:"Owen J.", board:"Adventure Log", desc:"Chasing waterfalls through dense rainforest trails.", category:"Nature", h:290 },
+  { id:13, img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", title:"Cantilevered House", user:"Sven L.", board:"Architecture Finds", desc:"Daring architecture that defies gravity over a mountain valley.", category:"Architecture", h:320 },
+  { id:14, img:"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80", title:"Coding Aesthetic", user:"Dev C.", board:"Workspace", desc:"Dark mode, mechanical keys, and a perfectly timed coffee.", category:"Photography", h:260 },
+  { id:15, img:"https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&q=80", title:"Pug Portrait", user:"Hana K.", board:"Pets ♥", desc:"The most photogenic pug in the history of pugs.", category:"Photography", h:310 },
+  { id:16, img:"https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=400&q=80", title:"Neon Night Street", user:"Jin P.", board:"Urban Nights", desc:"Tokyo rain-slicked streets with blazing neon reflections.", category:"Photography", h:350 },
+  { id:17, img:"https://images.unsplash.com/photo-1563807894768-f28bee0d37b6?w=400&q=80", title:"Macrame Wall Art", user:"Ines B.", board:"DIY Ideas", desc:"A step-by-step guide to making your own boho wall hanging.", category:"DIY", h:370 },
+  { id:18, img:"https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&q=80", title:"Floral Wedding Arch", user:"Rose T.", board:"Wedding Dreams", desc:"Lush cascading florals in blush pink and ivory for a romantic ceremony.", category:"Wedding", h:300 },
+  { id:19, img:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80", title:"Morning Run Ritual", user:"Alex K.", board:"Fitness Journey", desc:"5am runs hit different when the world is still asleep.", category:"Fitness", h:280 },
+  { id:20, img:"https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&q=80", title:"Cozy Reading Nook", user:"Bea W.", board:"Dream Home", desc:"Nestled between shelves of books — the ultimate introvert corner.", category:"Interior", h:360 },
+  { id:21, img:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80", title:"Editorial Close-Up", user:"Sam H.", board:"Portrait Work", desc:"Bold brows, dewy skin — minimal makeup maximum impact.", category:"Photography", h:340 },
+  { id:22, img:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80", title:"Sushi Spread", user:"Kenji N.", board:"Japanese Cuisine", desc:"An omakase feast worthy of a Michelin star.", category:"Food", h:290 },
+  { id:23, img:"https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&q=80", title:"Himalayan Trek", user:"Raj M.", board:"Mountain Life", desc:"Above the clouds on the roof of the world.", category:"Travel", h:400 },
+  { id:24, img:"https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80", title:"Oversized Trench", user:"Léa B.", board:"Parisian Chic", desc:"The classic trench coat — eternal, effortless, essential.", category:"Fashion", h:350 },
+];
+
+let savedPins = new Set();
+let activeCategory = 'All';
+let searchQuery = '';
+let currentPin = null;
+
+function getFiltered() {
+  return PINS.filter(p => {
+    const matchCat = activeCategory === 'All' || p.category === activeCategory;
+    const q = searchQuery.toLowerCase();
+    const matchQ = !q || p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.user.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  const pins = getFiltered();
+  grid.innerHTML = '';
+  pins.forEach((p, i) => {
+    const saved = savedPins.has(p.id);
+    const hasLabel = true;
+    const div = document.createElement('div');
+    div.className = 'pin';
+    div.style.animationDelay = (i * 0.04) + 's';
+    div.innerHTML = `
+      <img src="${p.img}" alt="${p.title}" style="height:${p.h}px" loading="lazy" />
+      <div class="pin-overlay">
+        <div class="pin-overlay-top">
+          <button class="ov-btn ov-board">${p.board}</button>
+          <button class="ov-btn ${saved ? 'ov-saved':'ov-save'}" onclick="toggleSave(event,${p.id})">${saved ? 'Saved':'Save'}</button>
+        </div>
+        <div class="pin-overlay-bottom">
+          <button class="ov-btn ov-share" title="Share">⬆</button>
+          <button class="ov-btn ov-more" title="More">•••</button>
+        </div>
+      </div>
+      <div class="pin-label">
+        <h4>${p.title}</h4>
+        <span>${p.user}</span>
+      </div>
+    `;
+    div.addEventListener('click', (e) => {
+      if (e.target.closest('.ov-btn')) return;
+      openPin(p);
+    });
+    grid.appendChild(div);
+  });
+}
+
+function toggleSave(e, id) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  if (savedPins.has(id)) {
+    savedPins.delete(id);
+    btn.textContent = 'Save';
+    btn.className = 'ov-btn ov-save';
+    showToast('Removed from board');
+  } else {
+    savedPins.add(id);
+    btn.textContent = 'Saved';
+    btn.className = 'ov-btn ov-saved';
+    showToast('✓ Saved to board!');
+  }
+  if (currentPin && currentPin.id === id) {
+    const mb = document.getElementById('modalSaveBtn');
+    mb.textContent = savedPins.has(id) ? 'Saved ✓' : 'Save';
+    mb.style.background = savedPins.has(id) ? '#333' : '';
+  }
+}
+
+function openPin(p) {
+  currentPin = p;
+  document.getElementById('modalImg').src = p.img;
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalUser').textContent = p.user;
+  document.getElementById('modalBoard').textContent = p.board;
+  document.getElementById('modalAvatar').textContent = p.user[0];
+  const sb = document.getElementById('modalSaveBtn');
+  sb.textContent = savedPins.has(p.id) ? 'Saved ✓' : 'Save';
+  sb.style.background = savedPins.has(p.id) ? '#333' : '';
+  document.getElementById('pinModal').classList.add('open');
+}
+
+function modalSave() {
+  if (!currentPin) return;
+  if (savedPins.has(currentPin.id)) {
+    savedPins.delete(currentPin.id);
+    document.getElementById('modalSaveBtn').textContent = 'Save';
+    document.getElementById('modalSaveBtn').style.background = '';
+    showToast('Removed from board');
+  } else {
+    savedPins.add(currentPin.id);
+    document.getElementById('modalSaveBtn').textContent = 'Saved ✓';
+    document.getElementById('modalSaveBtn').style.background = '#333';
+    showToast('✓ Saved to board!');
+  }
+  renderGrid();
+}
+
+function closePinModal(e) {
+  if (e.target === document.getElementById('pinModal')) {
+    document.getElementById('pinModal').classList.remove('open');
+  }
+}
+
+function openCreate() { document.getElementById('createModal').classList.add('open'); }
+function closeCreateModal(e) {
+  if (e.target === document.getElementById('createModal')) {
+    document.getElementById('createModal').classList.remove('open');
+  }
+}
+
+function saveNewPin() {
+  document.getElementById('createModal').classList.remove('open');
+  showToast('📌 Your Pin is live!');
+}
+
+function setCategory(btn, cat) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  activeCategory = cat;
+  renderGrid();
+}
+
+function filterPins() {
+  searchQuery = document.getElementById('searchInput').value;
+  renderGrid();
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderGrid();
+</script>
+</body>
+</html>
